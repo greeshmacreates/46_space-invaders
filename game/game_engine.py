@@ -22,6 +22,10 @@ DIFFICULTIES = {
     "Medium": {"speed": 1.5, "fire_chance": 0.022, "bullet_speed": 4, "drop": 15},
     "Hard":   {"speed": 2.5, "fire_chance": 0.045, "bullet_speed": 6, "drop": 20},
 }
+# Any of these keys fires (Space is the main one; the rest are backups
+# in case a keyboard layout / IME swallows Space)
+FIRE_KEYS = (pygame.K_SPACE, pygame.K_w, pygame.K_UP, pygame.K_RETURN)
+
 DIFFICULTY_KEYS = {
     pygame.K_1: "Easy",
     pygame.K_2: "Medium",
@@ -73,11 +77,9 @@ class GameEngine:
                 self.should_quit = True
             return
 
-        if event.key == pygame.K_SPACE and self._shoot_cooldown <= 0:
-            bullet_x = self.player.center_x() - 2
-            self.player_bullets.append(Bullet(bullet_x, self.player.y, direction=-1))
-            self._shoot_cooldown = 15
-            self.sounds.play_fire()
+
+        if event.key in FIRE_KEYS:
+            self._shoot()
 
     def handle_input(self):
         if self.game_over:
@@ -87,6 +89,19 @@ class GameEngine:
             self.player.move(-self.player.speed, self.width)
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             self.player.move(self.player.speed, self.width)
+
+        # Shooting is polled every frame (not tied to a single KEYDOWN event),
+        # so a press is never lost to the cooldown and holding Space auto-fires.
+        if any(keys[k] for k in FIRE_KEYS):
+            self._shoot()
+
+    def _shoot(self):
+        if self._shoot_cooldown > 0:
+            return
+        bullet_x = self.player.center_x() - 2
+        self.player_bullets.append(Bullet(bullet_x, self.player.y, direction=-1))
+        self._shoot_cooldown = 12
+        self.sounds.play_fire()
 
     def _front_line_enemies(self):
         """Lowest alive enemy in each column - only these can shoot."""
@@ -177,6 +192,9 @@ class GameEngine:
 
         score_text = self.font.render(f"Score: {self.score}", True, WHITE)
         screen.blit(score_text, (10, 10))
+
+        hint = self.small_font.render("Fire: Space", True, YELLOW)
+        screen.blit(hint, (10, self.height - 30))
 
         if self.game_over:
             self._render_game_over(screen)
