@@ -100,3 +100,7 @@ Submission is only the following three things:
 - [] A 10-second video of gameplay **before** your changes, showing the bug/broken behavior
 - [] A 10-second video of gameplay **after** your changes, showing the bug fixed and the new features working
 - [] The Chat/LLM used page link, with the complete chat history
+
+## Lab 4 Submission
+   - Videos, chat history PDF and updated code: see the `Lab-4/` folder
+   
