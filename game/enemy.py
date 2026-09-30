@@ -26,7 +26,9 @@ class EnemyGrid:
             for col in range(cols):
                 x = start_x + col * spacing_x
                 y = start_y + row * spacing_y
-                self.enemies.append(Enemy(x, y))
+                enemy = Enemy(x, y)
+                enemy.col = col
+                self.enemies.append(enemy)
 
     def alive_enemies(self):
         return [e for e in self.enemies if e.alive]
